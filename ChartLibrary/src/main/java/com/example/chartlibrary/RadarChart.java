@@ -68,7 +68,7 @@ public class RadarChart extends View {
         mTextPaint.setTextAlign(Paint.Align.LEFT);
 
         // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
+        //invalidateTextPaintAndMeasurements();
     }
 
     private void invalidateTextPaintAndMeasurements() {

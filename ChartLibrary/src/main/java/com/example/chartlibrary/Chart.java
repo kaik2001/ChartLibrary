@@ -12,7 +12,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
-public class Chart extends View {
+public class Chart {
     protected Paint backgroundPaint = new Paint();
     protected Paint onBackgroundPaint = new Paint();
 
@@ -30,13 +30,6 @@ public class Chart extends View {
     protected Vector2 canvasOrigin = canvasSize.multiply(-0.5);
 
     public Chart(Context context) {
-        super(context);
-        this.context = context;
-        init();
-    }
-
-    public Chart(Context context, AttributeSet attributeSet) {
-        super(context);
         this.context = context;
         init();
     }
@@ -45,17 +38,17 @@ public class Chart extends View {
         dp2px = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 1.0f,
-                getResources().getDisplayMetrics());
+                context.getResources().getDisplayMetrics());
 
-        backgroundPaint.setColor(getResources().getColor(com.google.android.material.R.color.design_default_color_background, context.getTheme()));
-        onBackgroundPaint.setColor(getResources().getColor(com.google.android.material.R.color.design_default_color_on_background, context.getTheme()));
+        backgroundPaint.setColor(context.getResources().getColor(com.google.android.material.R.color.design_default_color_background, context.getTheme()));
+        onBackgroundPaint.setColor(context.getResources().getColor(com.google.android.material.R.color.design_default_color_on_background, context.getTheme()));
 
-        int nightModeFlags = getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (nightModeFlags) {
             case Configuration.UI_MODE_NIGHT_UNDEFINED:
             case Configuration.UI_MODE_NIGHT_YES:
-                    backgroundPaint.setColor(getResources().getColor(com.google.android.material.R.color.design_dark_default_color_background, context.getTheme()));
-                    onBackgroundPaint.setColor(getResources().getColor(android.R.color.darker_gray, context.getTheme()));
+                    backgroundPaint.setColor(context.getResources().getColor(com.google.android.material.R.color.design_dark_default_color_background, context.getTheme()));
+                    onBackgroundPaint.setColor(context.getResources().getColor(android.R.color.darker_gray, context.getTheme()));
                 break;
         }
         backgroundPaint.setStrokeWidth(dp2px * 2);
@@ -67,22 +60,20 @@ public class Chart extends View {
         onBackgroundPaint.setTextSize(dp2px * 16);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+    protected void onDraw(Canvas canvas, View view) {
         this.canvas = canvas;
 
-        if(isInEditMode()){
+        if(view.isInEditMode()){
             canvas.drawColor(backgroundPaint.getColor());
         }
 
-        int paddingLeft = getPaddingLeft() + (int)(dp2px * canvasSizePadding.x);
-        int paddingTop = getPaddingTop() + (int)(dp2px * canvasSizePadding.y);
-        int paddingRight = getPaddingRight() + (int)(dp2px * canvasSizePadding.x);
-        int paddingBottom = getPaddingBottom() + (int)(dp2px * canvasSizePadding.y);
+        int paddingLeft = view.getPaddingLeft() + (int)(dp2px * canvasSizePadding.x);
+        int paddingTop = view.getPaddingTop() + (int)(dp2px * canvasSizePadding.y);
+        int paddingRight = view.getPaddingRight() + (int)(dp2px * canvasSizePadding.x);
+        int paddingBottom = view.getPaddingBottom() + (int)(dp2px * canvasSizePadding.y);
 
-        int contentWidth = getWidth() - paddingLeft - paddingRight;
-        int contentHeight = getHeight() - paddingTop - paddingBottom;
+        int contentWidth = view.getWidth() - paddingLeft - paddingRight;
+        int contentHeight = view.getHeight() - paddingTop - paddingBottom;
 
         contentStart = new Vector2(paddingLeft, paddingTop);
         contentSize = new Vector2(contentWidth, contentHeight);
@@ -97,7 +88,7 @@ public class Chart extends View {
         drawText("10.05.2035", Alignment.BottomLeft, new Vector2(0, 0).multiply(canvasSize).add(canvasOrigin), new Point(2, 2), onBackgroundPaint);
         drawText("10.05.2035", Alignment.BottomCenter, new Vector2(0.5, 0).multiply(canvasSize).add(canvasOrigin), new Point(0, 2), onBackgroundPaint);
         drawText("10.05.2035", Alignment.BottomRight, new Vector2(1, 0).multiply(canvasSize).add(canvasOrigin), new Point(-2, 2), onBackgroundPaint);
- */
+*/
     }
 
     protected enum Alignment {
@@ -157,7 +148,7 @@ public class Chart extends View {
         if (canvas == null)
             return;
 
-        Drawable drawable = getResources().getDrawable(icon, getContext().getTheme());
+        Drawable drawable = context.getResources().getDrawable(icon, context.getTheme());
         drawable.setColorFilter(paint.getColor(), PorterDuff.Mode.SRC_ATOP);
         Rect bounds = new Rect();
         Point pos = transformPoint(position);
@@ -209,7 +200,7 @@ public class Chart extends View {
         return contentStart.add(contentSize.multiply(new Vector2(0, 1).add(point.subtract(canvasOrigin).divide(canvasSize).conjugate()))).toPoint();
     }
 
-    public class Vector2 {
+    public static class Vector2 {
         double x, y;
 
         public Vector2(double x, double y) {

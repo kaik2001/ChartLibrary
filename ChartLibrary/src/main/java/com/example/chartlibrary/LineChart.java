@@ -2,21 +2,23 @@ package com.example.chartlibrary;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
-
-import androidx.annotation.Nullable;
+import android.view.View;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class LineChart extends Chart {
+import com.example.chartlibrary.Chart.*;
 
-    public ArrayList<Line> lines = new ArrayList<Line>();
+public class LineChart extends View {
+
+    public ArrayList<Line> lines = new ArrayList<>();
     public ArrayList<Paint> defaultLinePaints = new ArrayList<>();
+
+    private Chart base;
 
     private Vector2 min;
     private Vector2 max;
@@ -28,39 +30,41 @@ public class LineChart extends Chart {
 
     public LineChart(Context context) {
         super(context);
+        base = new Chart(context);
         init();
     }
 
     public LineChart(Context context, AttributeSet attributeSet) {
-        super(context);
+        super(context, attributeSet);
+        base = new Chart(context);
         init();
     }
 
     public void init() {
-        canvasSizePadding = new Vector2(2, 2 + 24);
+        base.canvasSizePadding = new Vector2(2, 2 + 24);
 
         for (int i = 0; i < 5; i++) {
             Paint paint = new Paint();
             switch (i) {
                 case 0:
-                    paint.setColor(getResources().getColor(android.R.color.holo_blue_dark, context.getTheme()));
+                    paint.setColor(getResources().getColor(android.R.color.holo_blue_dark, base.context.getTheme()));
                     break;
                 case 1:
-                    paint.setColor(getResources().getColor(android.R.color.holo_green_dark, context.getTheme()));
+                    paint.setColor(getResources().getColor(android.R.color.holo_green_dark, base.context.getTheme()));
                     break;
                 case 2:
-                    paint.setColor(getResources().getColor(android.R.color.holo_orange_dark, context.getTheme()));
+                    paint.setColor(getResources().getColor(android.R.color.holo_orange_dark, base.context.getTheme()));
                     break;
                 case 3:
-                    paint.setColor(getResources().getColor(android.R.color.holo_purple, context.getTheme()));
+                    paint.setColor(getResources().getColor(android.R.color.holo_purple, base.context.getTheme()));
                     break;
                 case 4:
-                    paint.setColor(getResources().getColor(android.R.color.holo_red_dark, context.getTheme()));
+                    paint.setColor(getResources().getColor(android.R.color.holo_red_dark, base.context.getTheme()));
                     break;
             }
-            paint.setStrokeWidth(dp2px * 2);
+            paint.setStrokeWidth(base.dp2px * 2);
             paint.setStrokeCap(Paint.Cap.ROUND);
-            paint.setTextSize(dp2px * 16);
+            paint.setTextSize(base.dp2px * 16);
             defaultLinePaints.add(paint);
         }
 
@@ -88,7 +92,10 @@ public class LineChart extends Chart {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
+        base.onDraw(canvas, this);
+
         calculateCanvasSize();
+
         int i = 0;
         for (Line line : lines){
             line.draw(i);
@@ -121,8 +128,8 @@ public class LineChart extends Chart {
                 }
             }
         }
-        canvasOrigin = min;
-        canvasSize = max.subtract(min);
+        base.canvasOrigin = min;
+        base.canvasSize = max.subtract(min);
     }
 
     private void drawAxis(){
@@ -149,24 +156,24 @@ public class LineChart extends Chart {
             xEnd.y = max.y;
         }
 
-        drawLine(xStart, xEnd, onBackgroundPaint);
-        drawLine(yStart, yEnd, onBackgroundPaint);
+        base.drawLine(xStart, xEnd, base.onBackgroundPaint);
+        base.drawLine(yStart, yEnd, base.onBackgroundPaint);
 
         if(max.y < 0){
-            drawText(minXDescription != "" ? minXDescription : new DecimalFormat("0.00").format(min.x), Alignment.BottomLeft, xStart, new Point(4, 4), onBackgroundPaint);
-            drawText(maxXDescription != "" ? maxXDescription : new DecimalFormat("0.00").format(max.x), Alignment.BottomRight, xEnd, new Point(-4, 4), onBackgroundPaint);
+            base.drawText(minXDescription != "" ? minXDescription : new DecimalFormat("0.00").format(min.x), Alignment.BottomLeft, xStart, new Point(4, 4), base.onBackgroundPaint);
+            base.drawText(maxXDescription != "" ? maxXDescription : new DecimalFormat("0.00").format(max.x), Alignment.BottomRight, xEnd, new Point(-4, 4), base.onBackgroundPaint);
         }
         else {
-            drawText(minXDescription != "" ? minXDescription : new DecimalFormat("0.00").format(min.x), Alignment.TopLeft, xStart, new Point(4, -4), onBackgroundPaint);
-            drawText(maxXDescription != "" ? maxXDescription : new DecimalFormat("0.00").format(max.x), Alignment.TopRight, xEnd, new Point(-4, -4), onBackgroundPaint);
+            base.drawText(minXDescription != "" ? minXDescription : new DecimalFormat("0.00").format(min.x), Alignment.TopLeft, xStart, new Point(4, -4), base.onBackgroundPaint);
+            base.drawText(maxXDescription != "" ? maxXDescription : new DecimalFormat("0.00").format(max.x), Alignment.TopRight, xEnd, new Point(-4, -4), base.onBackgroundPaint);
         }
         if(max.x < 0) {
-            drawText(minYDescription != "" ? minYDescription : new DecimalFormat("0.00").format(min.y), Alignment.BottomRight, yStart, new Point(-4, 4), onBackgroundPaint);
-            drawText(maxYDescription != "" ? maxYDescription : new DecimalFormat("0.00").format(max.y), Alignment.TopRight, yEnd, new Point(-4, -4), onBackgroundPaint);
+            base.drawText(minYDescription != "" ? minYDescription : new DecimalFormat("0.00").format(min.y), Alignment.BottomRight, yStart, new Point(-4, 4), base.onBackgroundPaint);
+            base.drawText(maxYDescription != "" ? maxYDescription : new DecimalFormat("0.00").format(max.y), Alignment.TopRight, yEnd, new Point(-4, -4), base.onBackgroundPaint);
         }
         else {
-            drawText(minYDescription != "" ? minYDescription : new DecimalFormat("0.00").format(min.y), Alignment.BottomLeft, yStart, new Point(4, 4), onBackgroundPaint);
-            drawText(maxYDescription != "" ? maxYDescription : new DecimalFormat("0.00").format(max.y), Alignment.TopLeft, yEnd, new Point(4, -4), onBackgroundPaint);
+            base.drawText(minYDescription != "" ? minYDescription : new DecimalFormat("0.00").format(min.y), Alignment.BottomLeft, yStart, new Point(4, 4), base.onBackgroundPaint);
+            base.drawText(maxYDescription != "" ? maxYDescription : new DecimalFormat("0.00").format(max.y), Alignment.TopLeft, yEnd, new Point(4, -4), base.onBackgroundPaint);
         }
     }
 
@@ -178,10 +185,10 @@ public class LineChart extends Chart {
             if(paint == null)
                 paint = defaultLinePaints.get(index % 5);
             for (int i = 1; i < points.size() - 1; i++){
-                points.get(i - 1).drawLine(points.get(i), paint);
+                points.get(i - 1).drawSegment(points.get(i), paint);
                 points.get(i).drawPoint(points.get(i - 1), points.get(i + 1), paint);
             }
-            points.get(points.size() - 1).drawLine(points.get(points.size() - 2), paint);
+            points.get(points.size() - 1).drawSegment(points.get(points.size() - 2), paint);
         }
     }
 
@@ -261,11 +268,11 @@ public class LineChart extends Chart {
                     pointAlignment = Alignment.TopCenter;
                     break;
             }
-            drawIcon(icon, dp2px * 8, pointAlignment, position, offset, paint);
+            base.drawIcon(icon, base.dp2px * 8, pointAlignment, position, offset, paint);
         }
 
-        public void drawLine(LinePoint other, Paint paint) {
-            LineChart.this.drawLine(position, other.position, paint);
+        public void drawSegment(LinePoint other, Paint paint) {
+            base.drawLine(position, other.position, paint);
         }
     }
 }
